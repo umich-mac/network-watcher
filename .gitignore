@@ -1,0 +1,10 @@
+.DS_Store
+/.build
+/Packages
+/Binaries
+*.dmg
+/*.xcodeproj
+xcuserdata/
+DerivedData/
+.swiftpm
+.netrc
