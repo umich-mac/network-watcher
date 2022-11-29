@@ -7,11 +7,18 @@ var gServer: String = ""
 var gPort: Int32 = 443
 var gCommand: String = ""
 var gAdditionalArguments: [String] = []
+var gCooldown: Date = Date.distantPast
 
 func ipDidChange(store: SCDynamicStore, keys: CFArray, info: UnsafeMutableRawPointer?) {
     let client: TCPClient = TCPClient(address: gServer, port: gPort)
+    
+    if gCooldown > Date.init() {
+        print("recently launched, passing for now...")
+        return
+    }
+    
     print("testing reachability...")
-
+    
     Task {
         // Try to connect 10 times
         var attempts = 0
@@ -27,6 +34,9 @@ func ipDidChange(store: SCDynamicStore, keys: CFArray, info: UnsafeMutableRawPoi
                 task.launchPath = gCommand
                 task.arguments = gAdditionalArguments
                 task.launch()
+                
+                // set cooldown
+                gCooldown = Date.init() + 120 // seconds
 
                 // Get out
                 return
@@ -47,7 +57,7 @@ struct NetworkWatcher: ParsableCommand {
     static var configuration = CommandConfiguration(
         abstract: "Network Watcher",
         discussion: "Monitors the network for changes, and calls (and will re-call) another command when a port becomes reachable.",
-        version: "1.5"
+        version: "1.5.1"
     )
     
     @Argument(help: "IP or server name to test")
